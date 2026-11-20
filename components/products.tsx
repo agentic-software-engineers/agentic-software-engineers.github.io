@@ -25,7 +25,7 @@ const products = [
 
 export function Products() {
   return (
-    <section id="products" className="mx-auto max-w-5xl scroll-mt-14 px-6 py-24">
+    <section id="products" className="mx-auto max-w-[1200px] scroll-mt-14 px-6 py-24">
       <h2 className="text-3xl font-semibold tracking-tight">Products</h2>
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         {products.map((product) => (

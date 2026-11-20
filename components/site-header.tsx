@@ -8,9 +8,9 @@ import { site } from "@/lib/site"
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-5xl items-center gap-2 px-6">
+      <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-2 px-6">
         <Link href="/" className="mr-auto flex items-center gap-2 font-semibold">
-          <Image src="/icon-192.png" alt="" width={28} height={28} priority />
+          <Image src="/logo.svg" alt="" width={28} height={28} priority />
           ASE
         </Link>
         <nav className="flex items-center">
