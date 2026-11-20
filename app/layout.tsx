@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: "/",
     title: "Agentic Software Engineers",
     description: "Fail fast. Fix faster. Ship fastest. Secure.",
-    images: [{ url: "/hero-poster.jpg", width: 1280, height: 720 }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
 }
 

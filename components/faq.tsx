@@ -60,7 +60,7 @@ const faq: { question: string; answer: React.ReactNode }[] = [
 
 export function Faq() {
   return (
-    <section id="faq" className="mx-auto max-w-5xl scroll-mt-14 px-6 py-24">
+    <section id="faq" className="mx-auto max-w-[1200px] scroll-mt-14 px-6 py-24">
       <h2 className="text-3xl font-semibold tracking-tight">FAQ</h2>
       <Accordion type="single" collapsible className="mt-8 max-w-3xl">
         {faq.map((item, index) => (
