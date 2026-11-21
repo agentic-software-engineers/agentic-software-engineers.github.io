@@ -10,22 +10,22 @@ const faq: { question: string; answer: React.ReactNode }[] = [
   {
     question: "What is Agentic Software Engineers?",
     answer:
-      "An open-source group building the tools we use ourselves to work with AI agents, without trading security for productivity.",
+      "An open-source group building the tools we use ourselves to work with AI agents, secure and productive at once.",
   },
   {
     question: "What does “agentic software engineer” mean?",
     answer:
-      "An engineer who lets agents write the code and still stands behind every line that ships. AI will not be the death of good engineering. It is the golden era of agentic software engineers.",
+      "An engineer who lets agents write the code and still stands behind every line that ships. It is the golden era of agentic software engineers.",
   },
   {
     question: "What does “Fail fast. Fix faster. Ship fastest. Secure.” stand for?",
     answer:
-      "Agents see every repository at once and run the whole stack in a safe environment, so they can break it and bring it back without touching anything real. Speed comes from that freedom, and security comes from deterministic enforcement rather than trust.",
+      "Agents see every repository at once and run the whole stack in a safe environment of their own, where they break it and bring it back. Speed comes from that freedom, and security comes from deterministic enforcement.",
   },
   {
     question: "Why security first?",
     answer:
-      "Because the environment, the hosts your agents reach and the secrets they can read should stay yours to decide, whether you review every line by hand or none at all.",
+      "Because the environment, the hosts your agents reach and the secrets they can read stay yours to decide, however much of the code you review yourself.",
   },
   {
     question: "Who is behind ASE?",
@@ -62,7 +62,7 @@ export function Faq() {
   return (
     <section id="faq" className="mx-auto max-w-[1200px] scroll-mt-14 px-6 py-24">
       <h2 className="text-3xl font-semibold tracking-tight">FAQ</h2>
-      <Accordion type="single" collapsible className="mt-8 max-w-3xl">
+      <Accordion type="single" collapsible className="mt-8">
         {faq.map((item, index) => (
           <AccordionItem key={index} value={`item-${index}`}>
             <AccordionTrigger className="text-base">{item.question}</AccordionTrigger>

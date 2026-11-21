@@ -20,8 +20,7 @@ export function Hero() {
             {"Fail fast. Fix faster.\nShip fastest. Secure."}
           </h1>
           <p className="mt-6 max-w-[500px] text-base leading-6 text-muted-foreground md:text-[19px] md:leading-[29px]">
-            An open-source group building the tools we use ourselves to work with AI agents, without trading security
-            for productivity.
+            An open-source group building the tools we use ourselves to work with AI agents, secure and productive at once.
           </p>
           <div className="mt-8 flex gap-3">
             <Link
