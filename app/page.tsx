@@ -1,6 +1,6 @@
 import { Faq } from "@/components/faq"
 import { Hero } from "@/components/hero"
-import { Products } from "@/components/products"
+import { Projects } from "@/components/projects"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 
@@ -10,7 +10,7 @@ export default function Page() {
       <SiteHeader />
       <main>
         <Hero />
-        <Products />
+        <Projects />
         <Faq />
       </main>
       <SiteFooter />
