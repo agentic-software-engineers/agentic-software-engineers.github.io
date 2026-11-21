@@ -1,45 +1,31 @@
-import Link from "next/link"
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
 
-import { HeroSceneLoader } from "@/components/hero-scene-loader"
-import { site } from "@/lib/site"
+import { HeroStage, type Logo } from "@/components/hero-stage"
+
+// the logo is read once at build time and cut into its parts: 0-6 cargo, 7 bridge, 8-9 the hull with its name, 10 the sea
+function loadLogo(): Logo {
+  const svg = readFileSync(join(process.cwd(), "public/logo-full.svg"), "utf8")
+  const defs = svg.match(/<defs>[\s\S]*?<\/defs>/)?.[0] ?? ""
+  const paths: string[] = [...(svg.match(/<path [^>]*\/>/g) ?? [])]
+  const numbers = (p: string) => (p.match(/ d="([^"]+)"/)?.[1].match(/-?\d+\.?\d*/g) ?? []).map(Number)
+  const box = (p: string) => {
+    const n = numbers(p)
+    const xs = n.filter((_, k) => k % 2 === 0)
+    const ys = n.filter((_, k) => k % 2 === 1)
+    return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) }
+  }
+  // the plain hull: the outline of the hull alone, without the letters cut into it
+  const hull = paths[8].match(/ d="([^"]+)"/)?.[1] ?? ""
+  const area = (d: string) => {
+    const b = box(` d="${d}"`)
+    return (b.x1 - b.x0) * (b.y1 - b.y0)
+  }
+  const outline = hull.split(/(?=M)/).filter((s) => s.trim()).reduce((a, b) => (area(a) > area(b) ? a : b))
+  paths.push(paths[8].replace(/ d="[^"]+"/, ` d="${outline}"`))
+  return { defs, paths, boxes: paths.map(box) }
+}
 
 export function Hero() {
-  return (
-    <section className="relative flex flex-col overflow-hidden bg-background xl:block xl:h-[calc(100svh-3.5rem)] xl:min-h-[640px]">
-      <div className="relative h-[410px] md:h-[480px] xl:absolute xl:inset-0 xl:h-auto">
-        <HeroSceneLoader />
-        {/* the sea fades out at the bottom, and behind the text on the left where both sit side by side */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_70%,var(--background))] xl:bg-[linear-gradient(180deg,transparent_78%,var(--background)),linear-gradient(90deg,color-mix(in_oklab,var(--background)_92%,transparent)_0%,color-mix(in_oklab,var(--background)_80%,transparent)_36%,transparent_50%)]" />
-      </div>
-      <div className="relative z-10 mx-auto flex w-full max-w-[1200px] px-6 pb-12 xl:h-full xl:items-center xl:pb-0">
-        <div
-          className="max-w-[640px] [opacity:calc(1-var(--hero-scroll,0)*2.2)] [transform:translateY(calc(var(--hero-scroll,0)*-160px))]"
-        >
-          <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase md:text-sm">{site.name}</p>
-          <h1 className="mt-3 text-[34px] leading-[40px] font-bold tracking-[-0.025em] whitespace-pre-line md:text-[48px] md:leading-[54px] xl:text-[64px] xl:leading-[70px]">
-            {"Fail fast. Fix faster.\nShip fastest. Secure."}
-          </h1>
-          <p className="mt-6 max-w-[500px] text-base leading-6 text-muted-foreground md:text-[19px] md:leading-[29px]">
-            An open-source group building the tools we use ourselves to work with AI agents, secure and productive at once.
-          </p>
-          <div className="mt-8 flex gap-3">
-            <Link
-              href="#projects"
-              className="inline-flex h-12 items-center rounded-[10px] bg-primary px-5 font-semibold text-primary-foreground"
-            >
-              Explore projects
-            </Link>
-            <Link
-              href={site.links.github}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center rounded-[10px] border px-5 font-semibold"
-            >
-              GitHub
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+  return <HeroStage logo={loadLogo()} />
 }
