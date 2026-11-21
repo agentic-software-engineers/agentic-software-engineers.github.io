@@ -6,7 +6,7 @@ export const site = {
     linkedin: "https://www.linkedin.com/in/hansehart/",
   },
   nav: [
-    { href: "#products", label: "Products" },
+    { href: "#projects", label: "Projects" },
     { href: "#faq", label: "FAQ" },
   ],
 }

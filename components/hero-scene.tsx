@@ -137,6 +137,19 @@ export function HeroScene() {
   // the server renders the scene's place; the browser decides whether WebGL can fill it
   const supported = useSyncExternalStore(subscribe, hasWebGL, () => true)
 
+  // the hero's text follows the scroll on its own, so it fades even while the scene pauses or is absent
+  useEffect(() => {
+    const hero = host.current?.closest("section")
+    if (!hero) return
+    const update = () => {
+      const r = hero.getBoundingClientRect()
+      hero.style.setProperty("--hero-scroll", String(Math.min(1, Math.max(0, -r.top / Math.max(1, r.height)))))
+    }
+    update()
+    window.addEventListener("scroll", update, { passive: true })
+    return () => window.removeEventListener("scroll", update)
+  }, [])
+
   useEffect(() => {
     const el = host.current
     // without WebGL the logo itself stands in for the scene
@@ -217,7 +230,6 @@ export function HeroScene() {
     const draw = (seconds: number) => {
       const s = scrolled()
       const ease = s * s * (3 - 2 * s)
-      hero?.style.setProperty("--hero-scroll", String(s))
       pointer.x += (pointer.tx - pointer.x) * 0.06
       pointer.y += (pointer.ty - pointer.y) * 0.06
       time.value = 0.7 + seconds

@@ -25,10 +25,10 @@ export function Hero() {
           </p>
           <div className="mt-8 flex gap-3">
             <Link
-              href="#products"
+              href="#projects"
               className="inline-flex h-12 items-center rounded-[10px] bg-primary px-5 font-semibold text-primary-foreground"
             >
-              Explore products
+              Explore projects
             </Link>
             <Link
               href={site.links.github}
