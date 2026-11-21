@@ -115,13 +115,13 @@ function buildShip(svg: string, scale: number) {
   return ship
 }
 
-function buildSea(time: { value: number }) {
-  const geometry = new THREE.PlaneGeometry(4000, 1600, 400, 160)
+function buildSea(time: { value: number }, eye: { value: THREE.Vector3 }) {
+  const geometry = new THREE.PlaneGeometry(6000, 6000, 240, 240)
   geometry.rotateX(-Math.PI / 2)
   const material = new THREE.ShaderMaterial({
-    uniforms: { t: time },
+    uniforms: { t: time, eye },
     vertexShader: /* glsl */ `
-      uniform float t; varying float vH; varying float vD; varying float vZ;
+      uniform float t; uniform vec3 eye; varying float vH; varying float vD; varying float vZ;
       const vec4 W[3] = vec4[3](${GLSL_WAVES}); const float OM[3] = float[3](${GLSL_OMEGA});
       void main(){
         vec3 p = position; vec3 o = p;
@@ -131,7 +131,7 @@ function buildSea(time: { value: number }) {
           p.z += ${STEEPNESS.toFixed(2)} * W[i].w * W[i].y * cos(f);
           p.y += W[i].w * sin(f);
         }
-        vH = p.y; vD = length(p.xz) / 1800.0; vZ = p.z + p.y * 0.7;
+        vH = p.y; vD = length(p.xz - eye.xz) / 2600.0; vZ = p.z + p.y * 0.7;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
       }`,
     // the sea is solid, so it hides the hull below its surface; in the distance it fades into the page
@@ -144,7 +144,7 @@ function buildSea(time: { value: number }) {
         float q = vZ / 38.0;
         float l = 1.0 - smoothstep(0.0, fwidth(q) * 1.2, abs(fract(q) - 0.5));
         c = mix(c, mix(line, crest, k), l * (0.25 + 0.75 * k));
-        gl_FragColor = vec4(mix(c, deep, smoothstep(0.30, 0.95, vD)), 1.0);
+        gl_FragColor = vec4(mix(c, deep, smoothstep(0.45, 0.95, vD)), 1.0);
       }`,
   })
   const sea = new THREE.Mesh(geometry, material)
@@ -203,7 +203,8 @@ export function HeroScene() {
     const scene = new THREE.Scene()
     scene.background = new THREE.Color("#0d0f0f")
     const time = { value: 0 }
-    scene.add(buildSea(time))
+    const eye = { value: new THREE.Vector3() }
+    scene.add(buildSea(time, eye))
     scene.add(new THREE.HemisphereLight("#e8fdff", "#0d0f0f", 2.0))
     for (const [colour, intensity, x, y, z] of [
       ["#ffffff", 1.8, 0, 120, 900],
@@ -233,6 +234,7 @@ export function HeroScene() {
       camera.position.set(r * Math.sin(yaw) * Math.cos(pitch), r * Math.sin(pitch), r * Math.cos(yaw) * Math.cos(pitch))
       camera.lookAt(0, layout.lookY, 0)
       camera.updateProjectionMatrix()
+      eye.value.copy(camera.position)
       wrap = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect * r + 160
     }
 
