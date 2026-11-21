@@ -9,7 +9,7 @@ export function Hero() {
       <div className="relative h-[410px] md:h-[480px] xl:absolute xl:inset-0 xl:h-auto">
         <HeroSceneLoader />
         {/* the sea fades out at the bottom, and behind the text on the left where both sit side by side */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_70%,var(--background))] xl:bg-[linear-gradient(180deg,transparent_78%,var(--background)),linear-gradient(90deg,var(--background)_0%,var(--background)_30%,color-mix(in_oklab,var(--background)_85%,transparent)_42%,transparent_62%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_70%,var(--background))] xl:bg-[linear-gradient(180deg,transparent_78%,var(--background)),linear-gradient(90deg,color-mix(in_oklab,var(--background)_92%,transparent)_0%,color-mix(in_oklab,var(--background)_80%,transparent)_36%,transparent_50%)]" />
       </div>
       <div className="relative z-10 mx-auto flex w-full max-w-[1200px] px-6 pb-12 xl:h-full xl:items-center xl:pb-0">
         <div
