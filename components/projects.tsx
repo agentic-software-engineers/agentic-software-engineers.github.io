@@ -1,28 +1,35 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
+import { Clamp } from "@/components/clamp"
+
+const org = "agentic-software-engineers"
 const projects = [
-  {
-    name: "Open Secure Software Suite (o3s)",
-    description:
-      "A plug-and-play dev container for all your projects, and the AI agents building them. Locked down by default.",
-    href: "https://github.com/agentic-software-engineers/o3s",
-  },
-  {
-    name: "Dev Container Features",
-    description:
-      "A collection of reusable dev container features to be dropped into any devcontainer.json.",
-    href: "https://github.com/agentic-software-engineers/devcontainer-features",
-  },
+  { name: "Open Secure Software Suite", repo: "o3s" },
+  { name: "Dev Container Features", repo: "devcontainer-features" },
 ]
 
+// descriptions come from each repository on GitHub
+async function description(repo: string) {
+  const token = process.env.GITHUB_TOKEN
+  const res = await fetch(`https://api.github.com/repos/${org}/${repo}`, {
+    headers: { Accept: "application/vnd.github+json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  })
+  if (!res.ok) throw new Error(`GitHub API ${res.status} for ${org}/${repo}`)
+  const data: { description: string | null } = await res.json()
+  return data.description ?? ""
+}
+
 // each project is a container from the logo's cargo: a face with a lid above and an end beside it
-export function Projects() {
+export async function Projects() {
+  const items = await Promise.all(
+    projects.map(async (p) => ({ ...p, href: `https://github.com/${org}/${p.repo}`, description: await description(p.repo) })),
+  )
   return (
     <section id="projects" className="mx-auto max-w-[1200px] scroll-mt-14 px-6 py-24">
       <h2 className="text-3xl font-semibold tracking-tight">Projects</h2>
-      <div className="mt-10 grid gap-x-10 gap-y-10 md:grid-cols-2">
-        {projects.map((project) => (
+      <div className="mt-10 grid auto-rows-fr gap-x-10 gap-y-10 md:grid-cols-2">
+        {items.map((project) => (
           <Link
             key={project.name}
             href={project.href}
@@ -48,7 +55,9 @@ export function Projects() {
                   <ArrowUpRight aria-hidden="true" className="ml-1.5 inline size-4 -translate-y-px align-middle" />
                 </span>
               </div>
-              <p className="mt-2 text-base leading-relaxed text-[#0d2a33]">{project.description}</p>
+              <p className="mt-2 text-base leading-relaxed text-[#0d2a33]">
+                <Clamp text={project.description} lines={3} />
+              </p>
               {/* the container's doors: three ribs at its right end */}
               <span aria-hidden="true" className="absolute top-5 right-5 bottom-5 flex gap-2">
                 <i className="w-0.5 bg-[#0d0f0f]/25" />
