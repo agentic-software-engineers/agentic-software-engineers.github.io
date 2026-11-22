@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { ChevronDown } from "lucide-react"
 
 import { Highlighter } from "@/components/ui/highlighter"
 import { RetroGrid } from "@/components/ui/retro-grid"
@@ -10,6 +11,9 @@ export type Logo = { defs: string; paths: string[]; boxes: Box[] }
 
 const WORDS = ["Fail fast.", "Fix faster.", "Ship fastest.", "Secure."]
 const LOGO_SIZE = 384.054
+// on load the story plays by itself up to the first word, then scrolling carries it on
+const INTRO = 0.085
+const INTRO_MS = 2600
 
 // the opened ship: each piece with the logo paths it draws and where it moves
 type Piece = { idx: number[]; dx: number; dy: number; role: "bridge" | "cargo" | "hull" | "named" | "sea" }
@@ -26,6 +30,17 @@ function pieces(boxes: Box[]): Piece[] {
     ...cargo,
   ]
 }
+
+// the box all pieces take up once the ship is fully open, in logo units
+function opened(parts: Piece[], boxes: Box[]): Box {
+  const all = parts.flatMap((p) => p.idx.map((i) => ({ x0: boxes[i].x0 + p.dx, y0: boxes[i].y0 + p.dy, x1: boxes[i].x1 + p.dx, y1: boxes[i].y1 + p.dy })))
+  return { x0: Math.min(...all.map((b) => b.x0)), y0: Math.min(...all.map((b) => b.y0)), x1: Math.max(...all.map((b) => b.x1)), y1: Math.max(...all.map((b) => b.y1)) }
+}
+
+// the phone list below the opened ship: its gap, four rows and the last row's height
+const LIST_H = 40 + 3 * 52 + 44
+// room around the logo's own square, so moved pieces and their glow stay inside the svg (Safari clips filtered svg content to its box)
+const ROOM = 180
 
 const LABELS = [
   { at: 7, place: "left", title: "Bridge", line: "People set the course." },
@@ -63,6 +78,22 @@ export function HeroStage({ logo }: { logo: Logo }) {
   const reduced = useReducedMotion()
   const [size, setSize] = useState({ w: 1440, h: 844 })
   const [progress, setProgress] = useState(0)
+  const [intro, setIntro] = useState(0)
+  // the slogan's marks, one after another once it is on screen
+  const [mark, setMark] = useState(0)
+  const sloganShown = !reduced && progress > 0.6 && progress < 0.74
+
+  useEffect(() => {
+    let frame = 0
+    const start = performance.now()
+    const tick = (t: number) => {
+      const x = clamp((t - start) / INTRO_MS)
+      setIntro(1 - Math.pow(1 - x, 3))
+      if (x < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   // the stage's size sets every distance; scrolling through the track sets the progress
   useEffect(() => {
@@ -90,7 +121,16 @@ export function HeroStage({ logo }: { logo: Logo }) {
     }
   }, [])
 
-  const s = reduced ? 1 : progress
+  useEffect(() => {
+    if (!sloganShown) return
+    const timers = [1, 2, 3, 4].map((n) => setTimeout(() => setMark(n), 150 + (n - 1) * 650))
+    return () => {
+      timers.forEach(clearTimeout)
+      setMark(0)
+    }
+  }, [sloganShown])
+
+  const s = reduced ? 1 : INTRO * intro + progress * (1 - INTRO * intro)
   const { w: W, h: H } = size
   const narrow = W < 768
   // the retro grid's horizon: where its tilted plane meets the line of sight (perspective 200, angle 65)
@@ -105,14 +145,26 @@ export function HeroStage({ logo }: { logo: Logo }) {
   const sloganOut = smooth(span(0.72, 0.78))
   const az = Math.pow(arrive, 1.8)
   const scale = (0.04 + az * 0.96) * (1 - 0.42 * sloganIn) * (1 - 0.15 * open)
-  const logoSize = full * scale
+  const parts = pieces(logo.boxes)
+  let logoSize = full * scale
   const cx = W / 2
   const cy = H / 2 + (horizon - H / 2) * (1 - az) - H * 0.14 * sloganIn
-  const left = cx - logoSize / 2
-  const top = cy - logoSize / 2
-  const k = logoSize / LOGO_SIZE
+  let left = cx - logoSize / 2
+  let top = cy - logoSize / 2
+  let k = logoSize / LOGO_SIZE
+  // on phones the opened ship and the list below it are sized and centered to fit the screen
+  if (narrow && open > 0) {
+    const ext = opened(parts, logo.boxes)
+    const fit = Math.min(1, (H - LIST_H - 48) / ((ext.y1 - ext.y0) * k), (W - 48) / ((ext.x1 - ext.x0) * k))
+    k *= 1 + (fit - 1) * open
+    logoSize = LOGO_SIZE * k
+    left = cx - logoSize / 2
+    top = cy - logoSize / 2
+    const blockTop = Math.max(16, (H - (ext.y1 - ext.y0) * k - LIST_H) / 2)
+    top += (blockTop - (top + ext.y0 * k)) * open
+    left += ((W - (ext.x1 - ext.x0) * k) / 2 - (left + ext.x0 * k)) * open
+  }
   const glow = Math.sin(settle * Math.PI) * 40 + 8 * az
-  const parts = pieces(logo.boxes)
 
   // a piece's box on screen, where it has moved to
   const rect = (i: number) => {
@@ -166,8 +218,8 @@ export function HeroStage({ logo }: { logo: Logo }) {
         </div>
 
         {/* the logo, whole until it opens into its parts */}
-        <svg viewBox={`0 0 ${LOGO_SIZE} ${LOGO_SIZE}`} aria-hidden="true" className="absolute overflow-visible"
-          style={{ left, top, width: logoSize, height: logoSize, opacity: arrive <= 0 ? 0 : Math.min(1, arrive * 4), filter: `drop-shadow(0 0 ${glow}px rgba(75,223,203,.7))` }}>
+        <svg viewBox={`${-ROOM} ${-ROOM} ${LOGO_SIZE + 2 * ROOM} ${LOGO_SIZE + 2 * ROOM}`} aria-hidden="true" className="absolute"
+          style={{ left: left - ROOM * k, top: top - ROOM * k, width: logoSize + 2 * ROOM * k, height: logoSize + 2 * ROOM * k, opacity: arrive <= 0 ? 0 : Math.min(1, arrive * 4), filter: `drop-shadow(0 0 ${glow}px rgba(75,223,203,.7))` }}>
           <g dangerouslySetInnerHTML={{ __html: scoped(logo.defs, "hero") }} />
           {parts.map((p) => (
             <g key={p.idx.join("-")} transform={`translate(${p.dx * open} ${p.dy * open})`} opacity={opacity(p)}
@@ -178,12 +230,17 @@ export function HeroStage({ logo }: { logo: Logo }) {
         {/* the full slogan, with Secure. marked */}
         <h1 className="absolute inset-x-0 text-center text-3xl leading-tight font-extrabold tracking-[-0.03em] md:text-[56px]"
           style={{ top: H / 2 + full * 0.168 + 10, opacity: sloganIn * (1 - sloganOut), transform: `translateY(${(1 - sloganIn) * 30}px)` }}>
-          Fail fast. Fix faster.
+          {mark > 0 ? <Highlighter action="underline" color="#27bbe5" strokeWidth={3} padding={2}>Fail fast.</Highlighter> : "Fail fast."}{" "}
+          {mark > 1 ? <Highlighter action="underline" color="#27bbe5" strokeWidth={3} padding={2}>Fix faster.</Highlighter> : "Fix faster."}
           <br />
-          Ship fastest.{" "}
-          <Highlighter action="highlight" color="#4bdfcb" padding={4}>
-            <span className="text-background">Secure.</span>
-          </Highlighter>
+          {mark > 2 ? <Highlighter action="underline" color="#27bbe5" strokeWidth={3} padding={2}>Ship fastest.</Highlighter> : "Ship fastest."}{" "}
+          {mark > 3 ? (
+            <Highlighter action="highlight" color="#4bdfcb" padding={4}>
+              <span className="text-background">Secure.</span>
+            </Highlighter>
+          ) : (
+            <span className="text-primary">Secure.</span>
+          )}
         </h1>
 
         {/* the parts, named beside them on wide screens and listed below on phones */}
@@ -214,11 +271,26 @@ export function HeroStage({ logo }: { logo: Logo }) {
               })}
         </dl>
 
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 text-[13px] tracking-[0.16em] text-muted-foreground uppercase"
-          style={{ opacity: 1 - smooth(span(0, 0.05)) }} aria-hidden="true">
-          Scroll
-        </div>
+        {/* the invitation to scroll, once the intro has played */}
+        {!reduced && (
+          <ScrollCue opacity={smooth((intro - 0.8) / 0.2) * (1 - smooth(progress / 0.03))}
+            onNext={() => window.scrollBy({ top: window.innerHeight * 0.9, behavior: "smooth" })} />
+        )}
       </div>
     </section>
+  )
+}
+
+function ScrollCue({ opacity, onNext }: { opacity: number; onNext: () => void }) {
+  return (
+    <div className="absolute bottom-9 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3"
+      style={{ opacity, pointerEvents: opacity > 0.5 ? "auto" : "none" }}>
+      <button type="button" onClick={onNext} aria-label="Scroll to the story"
+        className="relative grid size-[84px] animate-[cue-bob_2.4s_ease-in-out_infinite] place-items-center rounded-full border-[1.5px] border-[#4bdfcb]/70 bg-[#4bdfcb]/10 text-[#4bdfcb] shadow-[0_0_28px_rgba(75,223,203,.35)] backdrop-blur-sm">
+        <span className="absolute -inset-3 animate-[cue-ring_2.4s_ease-out_infinite] rounded-full border-[1.5px] border-[#4bdfcb]/40" aria-hidden="true" />
+        <ChevronDown className="size-10" aria-hidden="true" />
+      </button>
+      <span className="text-[15px] font-medium tracking-[0.24em] text-[#e6f4f2] uppercase" aria-hidden="true">Scroll</span>
+    </div>
   )
 }

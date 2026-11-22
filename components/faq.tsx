@@ -7,20 +7,20 @@ import {
 
 const faq: { question: string; answer: React.ReactNode }[] = [
   {
-    question: "What is the goal of “Agentic Software Engineers”?",
-    answer: "Guiding the transformation to the next era of software.",
+    question: "What does ASE stand for?",
+    answer: "Agentic Software Engineers. Participating in the transformation to the next era of software with expertise and the conviction that users are not beta testers.",
   },
   {
     question: "What is an agentic software engineer?",
-    answer: "Someone who lets agents write the code and with engineering discipline stands behind every line that ships.",
+    answer: "A professional who lets agents write the code through engineering discipline and stands behind every line that ships.",
   },
   {
     question: "What does the future look like?",
     answer: "A golden era for agentic software engineers pushing the boundaries of the problems we can solve.",
   },
   {
-    question: "Are vibe coders the same?",
-    answer: "No.",
+    question: "What is the difference from a vibe coder?",
+    answer: "The level of risk it can carry. Vibe coding fits work without consequences, like hobby projects, prototypes and experiments. As soon as users, data or money are involved, engineering discipline is required.",
   },
 ]
 
