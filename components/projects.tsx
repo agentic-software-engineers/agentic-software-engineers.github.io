@@ -1,8 +1,6 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
-import { Clamp } from "@/components/clamp"
-
 const org = "agentic-software-engineers"
 const projects = [
   { name: "Open Secure Software Suite", repo: "o3s" },
@@ -28,7 +26,7 @@ export async function Projects() {
   return (
     <section id="projects" className="mx-auto max-w-[1200px] scroll-mt-14 px-6 py-24">
       <h2 className="text-3xl font-semibold tracking-tight">Projects</h2>
-      <div className="mt-10 grid auto-rows-fr gap-x-10 gap-y-10 md:grid-cols-2">
+      <div className="mt-10 grid auto-rows-fr gap-x-10 gap-y-10 lg:grid-cols-2">
         {items.map((project) => (
           <Link
             key={project.name}
@@ -55,9 +53,7 @@ export async function Projects() {
                   <ArrowUpRight aria-hidden="true" className="ml-1.5 inline size-4 -translate-y-px align-middle" />
                 </span>
               </div>
-              <p className="mt-2 text-base leading-relaxed text-[#0d2a33]">
-                <Clamp text={project.description} lines={3} />
-              </p>
+              <p className="mt-2 text-base leading-relaxed text-[#0d2a33]">{project.description}</p>
               {/* the container's doors: three ribs at its right end */}
               <span aria-hidden="true" className="absolute top-5 right-5 bottom-5 flex gap-2">
                 <i className="w-0.5 bg-[#0d0f0f]/25" />
