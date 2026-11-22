@@ -79,9 +79,6 @@ export function HeroStage({ logo }: { logo: Logo }) {
   const [size, setSize] = useState({ w: 1440, h: 844 })
   const [progress, setProgress] = useState(0)
   const [intro, setIntro] = useState(0)
-  // the slogan's marks, one after another once it is on screen
-  const [mark, setMark] = useState(0)
-  const sloganShown = !reduced && progress > 0.6 && progress < 0.74
 
   useEffect(() => {
     let frame = 0
@@ -121,15 +118,6 @@ export function HeroStage({ logo }: { logo: Logo }) {
     }
   }, [])
 
-  useEffect(() => {
-    if (!sloganShown) return
-    const timers = [1, 2, 3, 4].map((n) => setTimeout(() => setMark(n), 150 + (n - 1) * 650))
-    return () => {
-      timers.forEach(clearTimeout)
-      setMark(0)
-    }
-  }, [sloganShown])
-
   const s = reduced ? 1 : INTRO * intro + progress * (1 - INTRO * intro)
   const { w: W, h: H } = size
   const narrow = W < 768
@@ -143,6 +131,8 @@ export function HeroStage({ logo }: { logo: Logo }) {
   const open = smooth(span(0.76, 0.94))
   const sloganIn = smooth(span(0.58, 0.64))
   const sloganOut = smooth(span(0.72, 0.78))
+  // the marker draws over Secure. each time the full slogan comes on screen
+  const marked = sloganIn > 0.8 && sloganOut < 0.2
   const az = Math.pow(arrive, 1.8)
   const scale = (0.04 + az * 0.96) * (1 - 0.42 * sloganIn) * (1 - 0.15 * open)
   const parts = pieces(logo.boxes)
@@ -227,19 +217,19 @@ export function HeroStage({ logo }: { logo: Logo }) {
           ))}
         </svg>
 
-        {/* the full slogan, with Secure. marked */}
+        {/* the full slogan; Secure. gets the marker once it is on screen */}
         <h1 className="absolute inset-x-0 text-center text-3xl leading-tight font-extrabold tracking-[-0.03em] md:text-[56px]"
           style={{ top: H / 2 + full * 0.168 + 10, opacity: sloganIn * (1 - sloganOut), transform: `translateY(${(1 - sloganIn) * 30}px)` }}>
-          {mark > 0 ? <Highlighter action="underline" color="#27bbe5" strokeWidth={3} padding={2}>Fail fast.</Highlighter> : "Fail fast."}{" "}
-          {mark > 1 ? <Highlighter action="underline" color="#27bbe5" strokeWidth={3} padding={2}>Fix faster.</Highlighter> : "Fix faster."}
+          Fail fast. Fix faster.
           <br />
-          {mark > 2 ? <Highlighter action="underline" color="#27bbe5" strokeWidth={3} padding={2}>Ship fastest.</Highlighter> : "Ship fastest."}{" "}
-          {mark > 3 ? (
+          Ship fastest.{" "}
+          {marked ? (
             <Highlighter action="highlight" color="#4bdfcb" padding={4}>
-              <span className="text-background">Secure.</span>
+              {/* the text darkens as the marker draws under it (Highlighter's default 600ms) */}
+              <span className="animate-[marker-ink_600ms_ease-in_forwards]">Secure.</span>
             </Highlighter>
           ) : (
-            <span className="text-primary">Secure.</span>
+            <span className="inline-block">Secure.</span>
           )}
         </h1>
 
@@ -272,25 +262,23 @@ export function HeroStage({ logo }: { logo: Logo }) {
         </dl>
 
         {/* the invitation to scroll, once the intro has played */}
-        {!reduced && (
-          <ScrollCue opacity={smooth((intro - 0.8) / 0.2) * (1 - smooth(progress / 0.03))}
-            onNext={() => window.scrollBy({ top: window.innerHeight * 0.9, behavior: "smooth" })} />
-        )}
+        {!reduced && <ScrollCue opacity={smooth((intro - 0.8) / 0.2) * (1 - smooth(progress / 0.03))} />}
       </div>
     </section>
   )
 }
 
-function ScrollCue({ opacity, onNext }: { opacity: number; onNext: () => void }) {
+// Scroll, with three chevrons below lighting up one after another
+function ScrollCue({ opacity }: { opacity: number }) {
   return (
-    <div className="absolute bottom-9 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3"
-      style={{ opacity, pointerEvents: opacity > 0.5 ? "auto" : "none" }}>
-      <button type="button" onClick={onNext} aria-label="Scroll to the story"
-        className="relative grid size-[84px] animate-[cue-bob_2.4s_ease-in-out_infinite] place-items-center rounded-full border-[1.5px] border-[#4bdfcb]/70 bg-[#4bdfcb]/10 text-[#4bdfcb] shadow-[0_0_28px_rgba(75,223,203,.35)] backdrop-blur-sm">
-        <span className="absolute -inset-3 animate-[cue-ring_2.4s_ease-out_infinite] rounded-full border-[1.5px] border-[#4bdfcb]/40" aria-hidden="true" />
-        <ChevronDown className="size-10" aria-hidden="true" />
-      </button>
-      <span className="text-[15px] font-medium tracking-[0.24em] text-[#e6f4f2] uppercase" aria-hidden="true">Scroll</span>
+    <div aria-hidden="true" className="pointer-events-none absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2" style={{ opacity }}>
+      <span className="text-[15px] font-medium tracking-[0.24em] text-[#e6f4f2] uppercase">Scroll</span>
+      <span className="flex flex-col items-center text-[#4bdfcb]">
+        {[0, 1, 2].map((i) => (
+          <ChevronDown key={i} strokeWidth={2.2} className="-mt-5 size-11 animate-[cue-chevron_1.8s_ease-in-out_infinite] opacity-20 first:mt-0"
+            style={{ animationDelay: `${i * 0.25}s` }} />
+        ))}
+      </span>
     </div>
   )
 }
