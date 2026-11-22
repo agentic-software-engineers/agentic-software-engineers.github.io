@@ -24,6 +24,20 @@
     ],
     "semanticCommitType": "fix"
   },
+  "customManagers": [
+    {
+      "description": "Node, pinned in the workflow that lints commit messages.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/commitlint\\.yaml$/"
+      ],
+      "matchStrings": [
+        "node-version: (?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version"
+    }
+  ],
   "packageRules": [
     {
       "description": "Except the pipeline, which no user ever runs.",
