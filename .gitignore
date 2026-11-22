@@ -37,3 +37,8 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# docs: product checkouts and the content copied from them, fumadocs output
+/.products/
+/content/docs/*/
+.source

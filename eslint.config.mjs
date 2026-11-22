@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // product checkouts and fumadocs output
+    ".products/**",
+    ".source/**",
   ]),
 ]);
 
