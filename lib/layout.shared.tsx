@@ -12,7 +12,8 @@ export function baseOptions(): BaseLayoutProps {
           Docs
         </>
       ),
-      url: "/docs",
+      // the logo leads back to the landing page
+      url: "/",
     },
     // the docs overview, reachable from every product
     links: [{ text: "Overview", url: "/docs" }],
