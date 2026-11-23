@@ -12,9 +12,11 @@ export function baseOptions(): BaseLayoutProps {
           Docs
         </>
       ),
-      url: "/docs",
+      // the logo leads back to the landing page
+      url: "/",
     },
-    links: [{ text: site.name, url: "/" }],
+    // the docs overview, reachable from every product
+    links: [{ text: "Overview", url: "/docs" }],
     githubUrl: site.links.github,
   }
 }
