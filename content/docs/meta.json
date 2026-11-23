@@ -1,4 +1,4 @@
 {
   "title": "Docs",
-  "pages": ["index", "o3s", "devcontainer-features"]
+  "pages": ["index", "devcontainer-features", "o3s"]
 }
