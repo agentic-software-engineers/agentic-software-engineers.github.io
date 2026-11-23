@@ -30,6 +30,7 @@ jobs:
         with:
           repository: agentic-software-engineers/o3s
           path: .products/o3s
+          ref: docs/comparison
           persist-credentials: false
 
       # install the Node the site builds with, fresh on every run, since the build publishes
