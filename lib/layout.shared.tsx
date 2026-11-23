@@ -14,7 +14,8 @@ export function baseOptions(): BaseLayoutProps {
       ),
       url: "/docs",
     },
-    links: [{ text: site.name, url: "/" }],
+    // the docs overview, reachable from every product
+    links: [{ text: "Overview", url: "/docs" }],
     githubUrl: site.links.github,
   }
 }
