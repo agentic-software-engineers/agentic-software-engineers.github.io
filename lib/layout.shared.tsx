@@ -9,7 +9,7 @@ export function baseOptions(): BaseLayoutProps {
       title: (
         <>
           <Image src="/logo.svg" alt="" width={24} height={24} />
-          Docs
+          ASE
         </>
       ),
       // the logo leads back to the landing page
