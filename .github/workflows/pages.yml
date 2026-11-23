@@ -1,16 +1,13 @@
 name: Deploy site
 on:
-  # publish the site with every change on main, and on demand
+  # publish the site with every change on main, and on demand, also when a product's docs change;
+  # pull requests build the site as a check
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions: {}
-
-# publish one change at a time, letting a running deployment finish
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -22,20 +19,28 @@ jobs:
         with:
           persist-credentials: false
 
+      # check out each product whose docs the site carries
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: agentic-software-engineers/devcontainer-features
+          path: .products/devcontainer-features
+          persist-credentials: false
+
       # install the Node the site builds with, fresh on every run, since the build publishes
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
           package-manager-cache: false
 
-      # take the base path the site is served at
-      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-
       # install the dependencies the lockfile names
       - run: npm ci
 
+      # check types and lint before building
+      - run: npm run typecheck
+      - run: npm run lint
+
       # build the static site, reading the project texts from the GitHub API
-      - run: npx --no-install next build
+      - run: npm run build
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -44,8 +49,13 @@ jobs:
           path: ./out
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    # publish one change at a time, letting a running deployment finish
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write
