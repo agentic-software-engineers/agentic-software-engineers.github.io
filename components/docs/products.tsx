@@ -2,19 +2,21 @@ import { Card, Cards } from "fumadocs-ui/components/card"
 
 import { source } from "@/lib/source"
 
-// one card per product, named and described by its docs
+// one card per product, named and described by its docs, linked to its first page
 export function Products() {
   return (
     <Cards>
-      {source.getPageTree().children.flatMap((node) =>
-        node.type === "folder" && node.root && node.index
+      {source.getPageTree().children.flatMap((node) => {
+        if (node.type !== "folder" || !node.root) return []
+        const page = node.index ?? node.children.find((child) => child.type === "page")
+        return page
           ? [
-              <Card key={node.index.url} title={node.name} href={node.index.url}>
+              <Card key={page.url} title={node.name} href={page.url}>
                 {node.description}
               </Card>,
             ]
-          : [],
-      )}
+          : []
+      })}
     </Cards>
   )
 }
