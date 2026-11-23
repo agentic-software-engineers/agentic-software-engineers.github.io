@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process"
 import { cpSync, existsSync, rmSync } from "node:fs"
 
 const org = "agentic-software-engineers"
-const products = ["devcontainer-features"]
+const products = ["devcontainer-features", "o3s"]
 
 for (const repo of products) {
   const checkout = `.products/${repo}`

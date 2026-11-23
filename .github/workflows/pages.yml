@@ -26,6 +26,12 @@ jobs:
           path: .products/devcontainer-features
           persist-credentials: false
 
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: agentic-software-engineers/o3s
+          path: .products/o3s
+          persist-credentials: false
+
       # install the Node the site builds with, fresh on every run, since the build publishes
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
