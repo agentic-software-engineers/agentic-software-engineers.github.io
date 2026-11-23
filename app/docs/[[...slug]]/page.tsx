@@ -6,12 +6,12 @@ import {
   DocsPage,
   DocsTitle,
   MarkdownCopyButton,
-  ViewOptionsPopover,
 } from "fumadocs-ui/layouts/docs/page"
 import { createRelativeLink } from "fumadocs-ui/mdx"
 
 import { getMDXComponents } from "@/components/docs/mdx"
-import { markdownUrl, sourceUrl } from "@/lib/docs"
+import { OpenIn } from "@/components/docs/open-in"
+import { markdownUrl, siteUrl } from "@/lib/docs"
 import { source } from "@/lib/source"
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
@@ -22,12 +22,17 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const MDX = page.data.body
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage
+      toc={page.data.toc}
+      full={page.data.full}
+      // the links to the previous and next page read from the left, like the page
+      footer={{ className: "[&_a]:text-start [&_a>div]:self-start" }}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
       <div className="flex flex-row items-center gap-2 border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl(page.url)} />
-        <ViewOptionsPopover markdownUrl={markdownUrl(page.url)} githubUrl={sourceUrl(page.path)} />
+        <OpenIn pageUrl={`${siteUrl}${page.url}`} />
       </div>
       <DocsBody>
         <MDX

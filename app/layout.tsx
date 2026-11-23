@@ -27,6 +27,8 @@ export default function RootLayout({
     <html
       lang="en"
       className={`dark ${GeistSans.variable} font-sans antialiased`}
+      // the docs switch the theme class on this element
+      suppressHydrationWarning
     >
       <body>{children}</body>
     </html>
