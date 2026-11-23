@@ -38,7 +38,7 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# docs: product checkouts and the content copied from them, fumadocs output
+# fumadocs
 /.products/
 /content/docs/*/
 .source
