@@ -16,7 +16,5 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [{ text: site.name, url: "/" }],
     githubUrl: site.links.github,
-    // dark only, like the landing page
-    themeSwitch: { enabled: false },
   }
 }

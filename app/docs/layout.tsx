@@ -5,10 +5,10 @@ import { DocsSearch } from "@/components/docs/search"
 import { baseOptions } from "@/lib/layout.shared"
 import { source } from "@/lib/source"
 
-// the docs: Fumadocs' layout with a product switcher, the landing page keeps its own
+// the docs: Fumadocs' layout with a product switcher and a light/dark switch, dark by default
 export default function Layout({ children }: LayoutProps<"/docs">) {
   return (
-    <RootProvider search={{ SearchDialog: DocsSearch }} theme={{ enabled: false }}>
+    <RootProvider search={{ SearchDialog: DocsSearch }} theme={{ defaultTheme: "dark" }}>
       <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
         {children}
       </DocsLayout>
